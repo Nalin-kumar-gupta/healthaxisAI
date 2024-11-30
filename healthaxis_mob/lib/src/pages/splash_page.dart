@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_healthcare_app/src/pages/bottomNavigation/dashboard_screen.dart';
-import 'package:flutter_healthcare_app/src/pages/bottomNavigation/doctor_dashboard_screen.dart';
-import 'package:flutter_healthcare_app/src/pages/login_page.dart';
-import 'package:flutter_healthcare_app/src/theme/light_color.dart';
-import 'package:flutter_healthcare_app/src/theme/text_styles.dart';
-import 'package:flutter_healthcare_app/src/theme/extention.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:healthaxis_mob/src/pages/bottomNavigation/dashboard_screen.dart';
+// import 'package:healthaxis_mob/src/pages/bottomNavigation/doctor_dashboard_screen.dart';
+// import 'package:healthaxis_mob/src/pages/login_page.dart';
+import 'package:healthaxis_mob/src/theme/color_resources.dart';
+import 'package:healthaxis_mob/src/theme/text_styles.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
-  SplashPage({Key key}) : super(key: key);
+  const SplashPage({Key? key}) : super(key: key); // Use null safety
 
   @override
   _SplashPageState createState() => _SplashPageState();
 }
 
 class _SplashPageState extends State<SplashPage> {
-  var id;
-  var userType;
+  String? id; // Use null safety
+  String? userType;
 
   @override
   void initState() {
-    getCustomerInfo();
-
     super.initState();
+    // getCustomerInfo();
   }
 
   @override
@@ -30,82 +28,87 @@ class _SplashPageState extends State<SplashPage> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
+          // Background Image
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage("assets/doctor_face.jpg"),
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
               ),
             ),
           ),
+          // Gradient Overlay
           Positioned.fill(
             child: Opacity(
-              opacity: .6,
+              opacity: 0.6,
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                      colors: [
-                        ColorResources.themered,
-                        ColorResources.themered.withOpacity(0.5)
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      tileMode: TileMode.mirror,
-                      stops: [.5, 6]),
+                    colors: [
+                      ColorResources.themered,
+                      ColorResources.themered.withOpacity(0.5),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ),
             ),
           ),
+          // Content
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Expanded(
-                flex: 2,
-                child: SizedBox(),
-              ),
+              const Spacer(flex: 2),
               Image.asset(
                 "assets/heartbeat.png",
                 color: Colors.white,
                 height: 100,
               ),
+              const SizedBox(height: 20),
               Text(
                 "Your health",
-                style: TextStyles.h1Style.white,
+                style: TextStyles.h1Style.copyWith(color: Colors.white),
               ),
+              const SizedBox(height: 10),
               Text(
-                "By pakiza technovation",
-                style: TextStyles.bodySm.white.bold,
+                "By Pakiza Technovation",
+                style: TextStyles.bodySm.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
               ),
-              Expanded(
-                flex: 7,
-                child: SizedBox(),
-              ),
+              const Spacer(flex: 7),
             ],
-          ).alignTopCenter,
+          ),
         ],
       ),
     );
   }
 
-  void getCustomerInfo() async {
-    SharedPreferences customerInfo = await SharedPreferences.getInstance();
-    setState(() {
-      id = customerInfo.getString('id');
-      userType = customerInfo.getString('userType');
-    });
-    Future.delayed(Duration(seconds: 2)).then((_) {
-      if (id != null) {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (_) => userType == 'Patient'
-                    ? DashboardScreen()
-                    : DoctorDashboardScreen()));
-      } else {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => LoginPage()));
-      }
-    });
-  }
+  // void getCustomerInfo() async {
+  //   final SharedPreferences customerInfo = await SharedPreferences.getInstance();
+
+  //   setState(() {
+  //     id = customerInfo.getString('id');
+  //     userType = customerInfo.getString('userType');
+  //   });
+
+  //   // Navigate after a short delay
+  //   await Future.delayed(const Duration(seconds: 2));
+
+  //   if (id != null) {
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (_) => userType == 'Patient'
+  //             ? const DashboardScreen()
+  //             : const DoctorDashboardScreen(),
+  //       ),
+  //     );
+  //   } else {
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(builder: (_) => const LoginPage()),
+  //     );
+  //   }
+  // }
 }
