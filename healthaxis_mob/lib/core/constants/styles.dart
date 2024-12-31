@@ -1,31 +1,32 @@
 import 'package:flutter/material.dart';
+import 'colors.dart';
 
 class AppStyles {
   static const TextStyle header = TextStyle(
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: FontWeight.bold,
-    color: Colors.black,
+    color: AppColors.textPrimary,
   );
 
   static const TextStyle subHeader = TextStyle(
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: FontWeight.w500,
-    color: Colors.black54,
+    color: AppColors.textSecondary,
   );
 
   static const TextStyle body = TextStyle(
-    fontSize: 14,
-    color: Colors.black87,
+    fontSize: 16,
+    color: AppColors.textSecondary,
   );
 
   static const TextStyle cardTitle = TextStyle(
     fontSize: 18,
-    fontWeight: FontWeight.bold,
-    color: Colors.black,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
   );
 
   static const TextStyle cardSubtitle = TextStyle(
     fontSize: 14,
-    color: Colors.black54,
+    color: AppColors.textSecondary,
   );
 }

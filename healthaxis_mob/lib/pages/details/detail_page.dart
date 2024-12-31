@@ -26,21 +26,30 @@ class DetailPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            Center(
-              child: Column(
-                children: [
-                  Text('Dr. Morris', style: AppStyles.header),
-                  Text('Cardio Surgeon', style: AppStyles.subHeader),
-                ],
-              ),
-            ),
+            Text('Dr. Morris', style: AppStyles.header),
+            Text('Cardio Surgeon', style: AppStyles.subHeader),
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildStatCard('88.2', 'Good Review'),
-                _buildStatCard('93.94', 'Total Score'),
-                _buildStatCard('78.2', 'Satisfaction'),
+                Column(
+                  children: [
+                    Text('88.2', style: AppStyles.header),
+                    Text('Good Review', style: AppStyles.body),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text('93.94', style: AppStyles.header),
+                    Text('Total Score', style: AppStyles.body),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text('78.2', style: AppStyles.header),
+                    Text('Satisfaction', style: AppStyles.body),
+                  ],
+                ),
               ],
             ),
             SizedBox(height: 20),
@@ -48,9 +57,8 @@ class DetailPage extends StatelessWidget {
               'About',
               style: AppStyles.header,
             ),
-            SizedBox(height: 10),
             Text(
-              'A doctor can be found in several settings, including public health organizations, group practices, and hospitals. They have some of the most diverse and challenging careers available and are part of a universally well-respected profession.',
+              'A doctor can be found in several settings, including public health organizations...',
               style: AppStyles.body,
             ),
             Spacer(),
@@ -65,22 +73,6 @@ class DetailPage extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildStatCard(String value, String label) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: AppStyles.header.copyWith(fontSize: 20),
-        ),
-        SizedBox(height: 5),
-        Text(
-          label,
-          style: AppStyles.body.copyWith(color: Colors.grey),
-        ),
-      ],
     );
   }
 }

@@ -5,25 +5,52 @@ import '../core/constants/styles.dart';
 class CustomCard extends StatelessWidget {
   final String title;
   final String subtitle;
+  final String imagePath;
+  final VoidCallback onTap;
 
-  const CustomCard({required this.title, required this.subtitle});
+  const CustomCard({
+    required this.title,
+    required this.subtitle,
+    required this.imagePath,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.4,
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppStyles.cardTitle),
-          SizedBox(height: 8),
-          Text(subtitle, style: AppStyles.cardSubtitle),
-        ],
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundImage: AssetImage(imagePath),
+              ),
+              SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppStyles.cardTitle,
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: AppStyles.cardSubtitle,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
