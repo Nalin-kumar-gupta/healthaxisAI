@@ -1,0 +1,2 @@
+DJANGO_SETTINGS_MODULE='healthaxis_drf.settings'
+BROKER_URL="redis://redis:6379/0"
