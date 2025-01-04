@@ -1,4 +1,3 @@
 DJANGO_SETTINGS_MODULE='healthaxis_drf.settings'
-SECRET_KEY="7tl#03gy1ui6lt2kjjqx@90np&^uhwvo85^$ingq#$dgnpht+j"
 BROKER_URL="redis://redis:6379/0"
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler'

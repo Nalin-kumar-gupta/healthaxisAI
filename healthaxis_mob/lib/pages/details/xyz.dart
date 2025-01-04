@@ -17,28 +17,6 @@ class AreaDetailPage extends StatelessWidget {
     required this.diseaseSources,
   });
 
-  // List of problematic areas with their details
-  final List<Map<String, dynamic>> hotspots = [
-    {
-      'name': 'Main Market',
-      'location': LatLng(27.6637, 79.4200),
-      'cause': 'Overcrowding and lack of hygiene',
-      'severity': 'High',
-    },
-    {
-      'name': 'Local School',
-      'location': LatLng(27.6625, 79.4185),
-      'cause': 'Poor ventilation and close contact',
-      'severity': 'Moderate',
-    },
-    {
-      'name': 'Bus Station',
-      'location': LatLng(27.6650, 79.4195),
-      'cause': 'Crowds during peak hours',
-      'severity': 'High',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,96 +28,34 @@ class AreaDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Map with hotspots
+            // Map container
             Container(
               height: 300,
               child: FlutterMap(
                 options: MapOptions(
                   initialCenter: LatLng(latitude, longitude),
-                  initialZoom: 13.0,
+                  initialZoom: 12.0,
                 ),
                 children: [
                   TileLayer(
                     urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c'],
                   ),
-                  MarkerLayer(
-                    markers: [
-                      // Main marker for the area
-                      Marker(
-                        point: LatLng(latitude, longitude),
-                        child: Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 40.0,
-                        ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: LatLng(latitude, longitude), // Marker position
+                      child: Icon(
+                        Icons.location_on,
+                        color: Colors.red,
+                        size: 40.0,
                       ),
-                      // Markers for problematic areas
-                      ...hotspots.map((hotspot) {
-                        return Marker(
-                          point: hotspot['location'],
-                          child: GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: Text(hotspot['name']),
-                                  content: Text(
-                                    'Cause: ${hotspot['cause']}\nSeverity: ${hotspot['severity']}',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: Text('Close'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            child: Icon(
-                              Icons.warning,
-                              color: hotspot['severity'] == 'High' ? Colors.red : Colors.yellow,
-                              size: 30.0,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            SizedBox(height: 16),
-            // Legend for markers
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.location_on, color: Colors.red, size: 20),
-                      SizedBox(width: 4),
-                      Text('Main Area'),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.warning, color: Colors.red, size: 20),
-                      SizedBox(width: 4),
-                      Text('High Risk'),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.warning, color: Colors.yellow, size: 20),
-                      SizedBox(width: 4),
-                      Text('Moderate Risk'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          ),
             SizedBox(height: 16),
             // Area Information Section
             Padding(
@@ -183,7 +99,7 @@ class AreaDetailPage extends StatelessWidget {
                   SizedBox(height: 16),
                   Divider(),
                   SizedBox(height: 16),
-                  // Disease Statistics
+                  // Additional Statistics
                   Text(
                     'Disease Statistics',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -214,6 +130,17 @@ class AreaDetailPage extends StatelessWidget {
                         ],
                       ),
                     ],
+                  ),
+                  SizedBox(height: 16),
+                  // Call to Action
+                  Text(
+                    'Stay Safe!',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Follow health guidelines to protect yourself and your family. Avoid crowded areas and maintain hygiene.',
+                    style: TextStyle(fontSize: 16),
                   ),
                 ],
               ),
