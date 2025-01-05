@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'pages/splash/splash_screen.dart';
 import 'pages/home/home_page.dart';
-import 'pages/details/detail_page.dart';
+// import 'routes/app_routes.dart';
+// import '../pages/details/appointment_detail_page.dart';
+import '../pages/details/patient_detail_page.dart';
+import '../pages/details/area_detail_page.dart';
+import '../pages/details/chatbot_detail_page.dart';
+import '../pages/details/stock_tracking_page.dart';
 
 void main() {
   runApp(HealthAxisAIApp());
@@ -19,9 +24,13 @@ class HealthAxisAIApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(),
-        '/home': (context) => HomePage(),
-        '/details': (context) => DetailPage(),
+        '' : (context) => HomePage(),
+        '/chatbot': (context) => ChatbotDetailPage(),
+        '/stock': (context) => StockTrackingPage(),
+        '/patient': (context) => PatientDetailPage(),
+      },
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(builder: (context) => HomePage());
       },
     );
   }

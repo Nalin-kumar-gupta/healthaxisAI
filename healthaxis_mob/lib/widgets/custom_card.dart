@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/constants/colors.dart';
-import '../core/constants/styles.dart';
+import '../core/constants/text_styles.dart';
 
 class CustomCard extends StatelessWidget {
   final String title;
@@ -20,7 +20,7 @@ class CustomCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Card(
-        color: AppColors.cardBackground,
+        color: AppColors.background,
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -39,12 +39,12 @@ class CustomCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppStyles.cardTitle,
+                    style: AppTextStyles.headline1,
                   ),
                   SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: AppStyles.cardSubtitle,
+                    style: AppTextStyles.headline2,
                   ),
                 ],
               ),
