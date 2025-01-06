@@ -228,6 +228,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
         ),
         child: InkWell(
+          onTap: () => Navigator.pushNamed(context, '/area-detail'),
           // onTap: () => _showAreaDetails(area),
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
           child: Column(

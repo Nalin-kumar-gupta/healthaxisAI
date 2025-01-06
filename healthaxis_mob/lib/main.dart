@@ -28,6 +28,7 @@ class HealthAxisAIApp extends StatelessWidget {
         '/chatbot': (context) => ChatbotDetailPage(),
         '/stock': (context) => StockTrackingPage(),
         '/patient': (context) => PatientDetailPage(),
+        '/area-detail': (context) => AreaDetailPage(areaName: 'areaName', latitude: 0.0, longitude: 17.0, diseaseSpread: 'Asthma', diseaseSources: 'water')
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(builder: (context) => HomePage());
