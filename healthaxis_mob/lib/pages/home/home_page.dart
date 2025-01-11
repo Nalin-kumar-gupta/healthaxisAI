@@ -51,66 +51,164 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  Widget _buildAppointmentCard(Map<String, dynamic> appointment) {
+
+  Widget _buildQuickActions() {
+    final actions = [
+      {'icon': Icons.chat_bubble_outline, 'label': 'Chatbot', 'route': '/chatbot', 'color': Color(0xFF4CAF50)},
+      {'icon': Icons.medical_services_outlined, 'label': 'Stock', 'route': '/stock', 'color': Color(0xFF2196F3)},
+      {'icon': Icons.calendar_today_outlined, 'label': 'Calendar', 'route': '/calendar', 'color': Color(0xFFFF4081)},
+      {'icon': Icons.help_outline, 'label': 'Help', 'route': '/help', 'color': Color(0xFF9C27B0)},
+    ];
+
     return Container(
-      width: 280,
-      margin: EdgeInsets.only(right: AppDimensions.spacing16),
-      child: Card(
-        elevation: AppDimensions.elevationSmall,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-        ),
-        child: InkWell(
-          // onTap: () => _showAppointmentDetails(),
-          borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-          child: Padding(
-            padding: EdgeInsets.all(AppDimensions.spacing12),
+      margin: EdgeInsets.symmetric(vertical: AppDimensions.spacing16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing16),
+            child: Text('Quick Actions', style: AppTextStyles.headline2),
+          ),
+          SizedBox(height: AppDimensions.spacing16),
+          Container(
+            height: 100,
+            padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing16),
             child: Row(
-              children: [
-                // Patient Image
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: AssetImage(appointment['imagePath']),
-                  backgroundColor: AppColors.surfaceMedium,
-                ),
-                SizedBox(width: AppDimensions.spacing12),
-                // Appointment Details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        appointment['name'],
-                        style: AppTextStyles.subtitle1,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: AppDimensions.spacing4),
-                      Text(
-                        appointment['details'],
-                        style: AppTextStyles.body2,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: AppDimensions.spacing8),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.access_time,
-                            size: AppDimensions.iconSmall,
-                            color: AppColors.primary,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: actions.map((action) => Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing4),
+                  child: InkWell(
+                    onTap: () => Navigator.pushNamed(context, action['route'] as String),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(AppDimensions.spacing12),
+                          decoration: BoxDecoration(
+                            color: action['color'] as Color,
+                            borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                            boxShadow: [
+                              BoxShadow(
+                                color: (action['color'] as Color).withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          SizedBox(width: AppDimensions.spacing4),
-                          Text(
-                            DateFormat('hh:mm a').format(
-                              DateTime.parse(appointment['time']),
-                            ),
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.primary,
-                            ),
+                          child: Icon(
+                            action['icon'] as IconData,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        SizedBox(height: AppDimensions.spacing8),
+                        Text(
+                          action['label'] as String,
+                          style: AppTextStyles.caption,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppointmentCard(Map<String, dynamic> appointment) {
+    return InkWell(
+      onTap: () => Navigator.pushNamed(context, '/appointment-details', arguments: appointment),
+      child: Container(
+        width: 300,
+        margin: EdgeInsets.symmetric(horizontal: AppDimensions.spacing8),
+        child: Card(
+          elevation: 2,
+          shadowColor: Colors.black.withOpacity(0.1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(AppDimensions.spacing16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.white, Colors.grey.shade50],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
                           ),
                         ],
+                      ),
+                      child: CircleAvatar(
+                        radius: 30,
+                        backgroundImage: AssetImage(appointment['imagePath']),
+                      ),
+                    ),
+                    SizedBox(width: AppDimensions.spacing16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            appointment['name'],
+                            style: AppTextStyles.subtitle1.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: AppDimensions.spacing4),
+                          Text(
+                            appointment['details'],
+                            style: AppTextStyles.body2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: AppDimensions.spacing16),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppDimensions.spacing12,
+                    vertical: AppDimensions.spacing8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: AppDimensions.iconSmall,
+                        color: AppColors.primary,
+                      ),
+                      SizedBox(width: AppDimensions.spacing8),
+                      Text(
+                        DateFormat('hh:mm a').format(DateTime.parse(appointment['time'])),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -123,29 +221,114 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildPatientCard(BuildContext context, Map<String, dynamic> patient) {
-    return Card(
-      elevation: AppDimensions.elevationSmall,
-      margin: EdgeInsets.only(bottom: AppDimensions.spacing12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+  Widget _buildAreaCard(Map<String, dynamic> area) {
+    return InkWell(
+      onTap: () => Navigator.pushNamed(context, '/area-details', arguments: area),
+      child: Container(
+        width: 220,
+        height: 195,
+        margin: EdgeInsets.symmetric(horizontal: AppDimensions.spacing8),
+        child: Card(
+          elevation: 2,
+          shadowColor: Colors.black.withOpacity(0.1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(AppDimensions.radiusLarge),
+                ),
+                child: Stack(
+                  children: [
+                    Image.asset(
+                      area['imagePath'],
+                      height: 120,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                    Container(
+                      height: 120,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.4),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: AppDimensions.spacing12,
+                      left: AppDimensions.spacing12,
+                      child: Text(
+                        area['title'],
+                        style: AppTextStyles.subtitle1.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(AppDimensions.spacing12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: AppDimensions.iconSmall,
+                            color: AppColors.textSecondary,
+                          ),
+                          SizedBox(width: AppDimensions.spacing4),
+                          Text(
+                            '${area['locationCount']} Locations',
+                            style: AppTextStyles.body2,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: AppDimensions.spacing8),
+                      _buildRiskIndicator(area['riskLevel']),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      child: InkWell(
-        // onTap: () => _showPatientDetails(patient),
-        onTap: () => Navigator.pushNamed(context, '/patient'),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+    );
+  }
+
+  Widget _buildPatientCard(BuildContext context, Map<String, dynamic> patient) {
+    return InkWell(
+      onTap: () => Navigator.pushNamed(context, '/patient-details', arguments: patient),
+      child: Card(
+        elevation: AppDimensions.elevationSmall,
+        margin: EdgeInsets.only(bottom: AppDimensions.spacing12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+        ),
         child: Padding(
           padding: EdgeInsets.all(AppDimensions.spacing16),
           child: Row(
             children: [
-              // Patient Image
               CircleAvatar(
                 radius: 25,
                 backgroundImage: AssetImage(patient['imagePath']),
                 backgroundColor: AppColors.surfaceMedium,
               ),
               SizedBox(width: AppDimensions.spacing16),
-              // Patient Details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,71 +401,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
     );
   }
-  Widget _buildAreaCard(Map<String, dynamic> area) {
-    return Container(
-      width: 200,
-      margin: EdgeInsets.only(right: AppDimensions.spacing16),
-      child: Card(
-        elevation: AppDimensions.elevationSmall,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-        ),
-        child: InkWell(
-          onTap: () => Navigator.pushNamed(context, '/area-detail'),
-          // onTap: () => _showAreaDetails(area),
-          borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Area Image
-              ClipRRect(
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(AppDimensions.radiusMedium),
-                ),
-                child: Image.asset(
-                  area['imagePath'],
-                  height: 100,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(AppDimensions.spacing12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      area['title'],
-                      style: AppTextStyles.subtitle1,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: AppDimensions.spacing4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on_outlined,
-                          size: AppDimensions.iconSmall,
-                          color: AppColors.textSecondary,
-                        ),
-                        SizedBox(width: AppDimensions.spacing4),
-                        Text(
-                          '${area['locationCount']} Locations',
-                          style: AppTextStyles.body2,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: AppDimensions.spacing8),
-                    _buildRiskIndicator(area['riskLevel']),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
@@ -343,26 +461,61 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildAppBar() {
     return SliverAppBar(
-      expandedHeight: 120,
+      expandedHeight: 180,
       floating: true,
       pinned: true,
-      elevation: 0,
       backgroundColor: AppColors.primary,
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          'Health Axis AI',
-          style: AppTextStyles.headline2.copyWith(color: AppColors.textOnPrimary),
+        background: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.primary, AppColors.primaryLight],
+            ),
+          ),
         ),
-        centerTitle: true,
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Welcome Back',
+              style: AppTextStyles.body2.copyWith(color: AppColors.textOnPrimary),
+            ),
+            Text(
+              'Dr. Smith',
+              style: AppTextStyles.headline2.copyWith(color: AppColors.textOnPrimary),
+            ),
+          ],
+        ),
+        titlePadding: EdgeInsets.only(
+          left: AppDimensions.spacing16,
+          bottom: AppDimensions.spacing16,
+        ),
       ),
       actions: [
-        IconButton(
-          icon: Icon(Icons.notifications_outlined),
-          onPressed: () => _showNotifications(),
+        Container(
+          margin: EdgeInsets.only(right: AppDimensions.spacing8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: Icon(Icons.notifications_outlined, color: Colors.white),
+            onPressed: () => _showNotifications(),
+          ),
         ),
-        IconButton(
-          icon: Icon(Icons.person_outline),
-          onPressed: () => _showProfile(),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: AppDimensions.spacing16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: Icon(Icons.person_outline, color: Colors.white),
+            onPressed: () => _showProfile(),
+          ),
         ),
       ],
     );
@@ -387,40 +540,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildQuickActions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Quick Actions', style: AppTextStyles.headline2),
-        SizedBox(height: AppDimensions.spacing12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildActionButton(
-              icon: Icons.chat_bubble_outline,
-              label: 'Chatbot',
-              onTap: () => Navigator.pushNamed(context, '/chatbot'),
-            ),
-            _buildActionButton(
-              icon: Icons.medical_services_outlined,
-              label: 'Stock',
-              onTap: () => Navigator.pushNamed(context, '/stock'),
-            ),
-            _buildActionButton(
-              icon: Icons.calendar_today_outlined,
-              label: 'Calendar',
-              onTap: () => _showCalendarView(),
-            ),
-            _buildActionButton(
-              icon: Icons.help_outline,
-              label: 'Help',
-              onTap: () => _showHelp(),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 
   Widget _buildActionButton({
     required IconData icon,
@@ -547,67 +666,127 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
+  Widget _buildSection({
+    required String title,
+    required Widget child,
+    VoidCallback? onSeeAll,
+  }) {
+    return Container(
+      margin: EdgeInsets.only(top: AppDimensions.spacing24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(title, style: AppTextStyles.headline2),
+                if (onSeeAll != null)
+                  TextButton(
+                    onPressed: onSeeAll,
+                    child: Text(
+                      'See All',
+                      style: TextStyle(color: AppColors.primary),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          SizedBox(height: AppDimensions.spacing12),
+          child,
+        ],
+      ),
+    );
+  }
+
+  
   // Update build method to use _currentIndex instead of TabController
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: IndexedStack(
-          index: _currentIndex,
-          children: [
-            // Home tab content
-            NestedScrollView(
-              key: const PageStorageKey('home_scroll'), // Add unique key
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                _buildAppBar(),
-                _buildSearchBar(),
-              ],
-              body: RefreshIndicator(
-                onRefresh: () async {
-                  // Implement refresh logic
-                },
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Padding(
-                    padding: EdgeInsets.all(AppDimensions.spacing16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildQuickActions(),
-                        SizedBox(height: AppDimensions.spacing24),
-                        _buildUpcomingAppointments(),
-                        SizedBox(height: AppDimensions.spacing24),
-                        _buildAreaOverview(),
-                        SizedBox(height: AppDimensions.spacing24),
-                        _buildPatientsList(),
-                      ],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          NestedScrollView(
+            key: const PageStorageKey('home_scroll'),
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              _buildAppBar(),
+              _buildSearchBar(),
+            ],
+            body: RefreshIndicator(
+              onRefresh: () async {},
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildQuickActions(),
+                    _buildSection(
+                      title: 'Today\'s Appointments',
+                      onSeeAll: _showAllAppointments,
+                      child: SizedBox(
+                        height: 160,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing8),
+                          itemCount: _getTodayAppointments().length,
+                          itemBuilder: (context, index) =>
+                              _buildAppointmentCard(_getTodayAppointments()[index]),
+                        ),
+                      ),
                     ),
-                  ),
+                    _buildSection(
+                      title: 'Area Overview',
+                      child: SizedBox(
+                        height: 200,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing8),
+                          itemCount: _getAreas().length,
+                          itemBuilder: (context, index) =>
+                              _buildAreaCard(_getAreas()[index]),
+                        ),
+                      ),
+                    ),
+                    _buildSection(
+                      title: 'Recent Patients',
+                      onSeeAll: () => Navigator.pushNamed(context, '/patients'),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing16),
+                        itemCount: _getRecentPatients().length,
+                        itemBuilder: (context, index) =>
+                            _buildPatientCard(context, _getRecentPatients()[index]),
+                      ),
+                    ),
+                    SizedBox(height: AppDimensions.spacing24),
+                  ],
                 ),
               ),
             ),
-            // Schedule tab content - Add unique keys
-            const Center(
-              key: PageStorageKey('schedule_page'),
-              child: Text('Schedule'),
-            ),
-            // Patients tab content - Add unique keys
-            const Center(
-              key: PageStorageKey('patients_page'),
-              child: Text('Patients'),
-            ),
-          ],
-        ),
+          ),
+          const Center(
+            key: PageStorageKey('schedule_page'),
+            child: Text('Schedule'),
+          ),
+          const Center(
+            key: PageStorageKey('patients_page'),
+            child: Text('Patients'),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddAppointmentDialog(),
-        child: Icon(Icons.add, color: AppColors.textOnPrimary),
+        child: Icon(Icons.add, color: Colors.white),
         backgroundColor: AppColors.primary,
+        elevation: 4,
       ),
       bottomNavigationBar: _buildBottomNav(),
     );
   }
+
 
 
   // Helper methods to get data (replace with actual data fetching)
@@ -918,3 +1097,23 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
         child != oldDelegate.child;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
