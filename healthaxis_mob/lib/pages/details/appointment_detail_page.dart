@@ -4,13 +4,27 @@ import '../../core/constants/colors.dart';
 import '../../core/constants/text_styles.dart';
 import '../../core/constants/dimensions.dart';
 
-class AppointmentDetailsPage extends StatelessWidget {
-  final Map<String, dynamic> appointment;
 
-  const AppointmentDetailsPage({Key? key, required this.appointment}) : super(key: key);
+class AppointmentDetailsPage extends StatelessWidget {
+  final Map<String, dynamic>? appointment;
+
+  const AppointmentDetailsPage({Key? key, this.appointment}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // If appointment is null, show error state
+    if (appointment == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Error'),
+          backgroundColor: AppColors.primary,
+        ),
+        body: Center(
+          child: Text('Appointment details not found', style: AppTextStyles.body1),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -66,12 +80,6 @@ class AppointmentDetailsPage extends StatelessWidget {
             // Implement edit functionality
           },
         ),
-        IconButton(
-          icon: Icon(Icons.more_vert, color: AppColors.textOnPrimary),
-          onPressed: () {
-            // Implement more options
-          },
-        ),
       ],
     );
   }
@@ -103,7 +111,12 @@ class AppointmentDetailsPage extends StatelessWidget {
                     ),
                     child: CircleAvatar(
                       radius: 40,
-                      backgroundImage: AssetImage(appointment['imagePath']),
+                      backgroundImage: appointment!['imagePath'] != null 
+                          ? AssetImage(appointment!['imagePath'] as String)
+                          : null,
+                      child: appointment!['imagePath'] == null 
+                          ? Icon(Icons.person, size: 40)
+                          : null,
                     ),
                   ),
                   SizedBox(width: AppDimensions.spacing16),
@@ -112,12 +125,12 @@ class AppointmentDetailsPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          appointment['name'],
+                          appointment!['name']?.toString() ?? 'Unknown Patient',
                           style: AppTextStyles.headline2,
                         ),
                         SizedBox(height: AppDimensions.spacing4),
                         Text(
-                          'Patient ID: ${appointment['patientId'] ?? 'P-12345'}',
+                          'Patient ID: ${appointment!['patientId']?.toString() ?? 'Unknown ID'}',
                           style: AppTextStyles.body2,
                         ),
                         SizedBox(height: AppDimensions.spacing8),
@@ -127,13 +140,13 @@ class AppointmentDetailsPage extends StatelessWidget {
                             vertical: AppDimensions.spacing4,
                           ),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(appointment['status']).withOpacity(0.1),
+                            color: _getStatusColor(appointment!['status']?.toString() ?? '').withOpacity(0.1),
                             borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
                           ),
                           child: Text(
-                            appointment['status'],
+                            appointment!['status']?.toString() ?? 'Unknown Status',
                             style: AppTextStyles.caption.copyWith(
-                              color: _getStatusColor(appointment['status']),
+                              color: _getStatusColor(appointment!['status']?.toString() ?? ''),
                             ),
                           ),
                         ),
@@ -150,6 +163,15 @@ class AppointmentDetailsPage extends StatelessWidget {
   }
 
   Widget _buildAppointmentDetails() {
+    DateTime? appointmentTime;
+    try {
+      appointmentTime = appointment!['time'] != null 
+          ? DateTime.parse(appointment!['time'].toString())
+          : null;
+    } catch (e) {
+      appointmentTime = null;
+    }
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: AppDimensions.spacing16),
       child: Column(
@@ -161,24 +183,26 @@ class AppointmentDetailsPage extends StatelessWidget {
             _buildDetailItem(
               Icons.calendar_today_outlined,
               'Date',
-              DateFormat('EEEE, MMMM d, yyyy').format(
-                DateTime.parse(appointment['time']),
-              ),
+              appointmentTime != null 
+                  ? DateFormat('EEEE, MMMM d, yyyy').format(appointmentTime)
+                  : 'Date not specified',
             ),
             _buildDetailItem(
               Icons.access_time,
               'Time',
-              DateFormat('h:mm a').format(DateTime.parse(appointment['time'])),
+              appointmentTime != null 
+                  ? DateFormat('h:mm a').format(appointmentTime)
+                  : 'Time not specified',
             ),
             _buildDetailItem(
               Icons.local_hospital_outlined,
               'Department',
-              appointment['department'] ?? 'General Medicine',
+              appointment!['department']?.toString() ?? 'Department not specified',
             ),
             _buildDetailItem(
               Icons.medical_services_outlined,
               'Type',
-              appointment['type'] ?? 'Follow-up',
+              appointment!['type']?.toString() ?? 'Type not specified',
             ),
           ]),
         ],
@@ -187,6 +211,13 @@ class AppointmentDetailsPage extends StatelessWidget {
   }
 
   Widget _buildMedicalHistory() {
+    List<String> medications = [];
+    if (appointment!['medications'] != null) {
+      if (appointment!['medications'] is List) {
+        medications = List<String>.from(appointment!['medications']);
+      }
+    }
+
     return Container(
       margin: EdgeInsets.all(AppDimensions.spacing16),
       child: Column(
@@ -198,17 +229,17 @@ class AppointmentDetailsPage extends StatelessWidget {
             _buildDetailItem(
               Icons.medication_outlined,
               'Current Medications',
-              appointment['medications']?.join(', ') ?? 'None',
+              medications.isNotEmpty ? medications.join(', ') : 'No medications listed',
             ),
             _buildDetailItem(
               Icons.history,
               'Previous Visit',
-              appointment['lastVisit'] ?? 'First Visit',
+              appointment!['lastVisit']?.toString() ?? 'No previous visits',
             ),
             _buildDetailItem(
               Icons.note_outlined,
               'Notes',
-              appointment['notes'] ?? 'No additional notes',
+              appointment!['notes']?.toString() ?? 'No notes available',
             ),
           ]),
         ],
