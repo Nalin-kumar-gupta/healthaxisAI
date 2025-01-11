@@ -1,6 +1,11 @@
+import '../../core/constants/colors.dart';
+import '../../core/constants/text_styles.dart';
+import '../../core/constants/dimensions.dart';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+
 
 class StockTrackingPage extends StatefulWidget {
   @override
@@ -11,7 +16,7 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
   late TabController _tabController;
   bool _isGridView = true;
 
-  // Enhanced stock data with more realistic details
+  // Stock data remains the same
   List<Map<String, dynamic>> stockItems = [
     {
       'item': 'Aspirin',
@@ -50,6 +55,7 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
       'history': [280, 300, 320, 290, 300]
     },
     // Add more items as needed
+    // ... other items remain the same
   ];
 
   @override
@@ -76,13 +82,13 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Low':
-        return Colors.red;
+        return AppColors.error;
       case 'Medium':
-        return Colors.orange;
+        return AppColors.warning;
       case 'Good':
-        return Colors.green;
+        return AppColors.success;
       default:
-        return Colors.grey;
+        return AppColors.neutral;
     }
   }
 
@@ -93,9 +99,12 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
     int daysUntilExpiry = expiryDate.difference(DateTime.now()).inDays;
 
     return Card(
-      elevation: 4,
+      elevation: AppDimensions.elevationSmall,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+      ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(AppDimensions.spacing16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -105,33 +114,36 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
                 Expanded(
                   child: Text(
                     item['item'],
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: AppTextStyles.subtitle1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppDimensions.spacing8,
+                    vertical: AppDimensions.spacing4,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
                   ),
                   child: Text(
                     status,
-                    style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
+                    style: AppTextStyles.caption.copyWith(color: statusColor),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            SizedBox(height: AppDimensions.spacing8),
             _buildInfoRow('Quantity', '${item['quantity']} ${item['unit']}'),
             _buildInfoRow('Category', item['category']),
             _buildInfoRow('Supplier', item['supplier']),
             _buildInfoRow('Batch No', item['batchNumber']),
             _buildInfoRow('Expiry', '${daysUntilExpiry} days'),
-            SizedBox(height: 12),
+            SizedBox(height: AppDimensions.spacing12),
             LinearProgressIndicator(
               value: item['quantity'] / (item['reorderPoint'] * 1.5),
-              backgroundColor: Colors.grey[200],
+              backgroundColor: AppColors.surfaceMedium,
               valueColor: AlwaysStoppedAnimation(statusColor),
             ),
           ],
@@ -140,45 +152,22 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
     );
   }
 
-
   Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(color: Colors.grey[600], fontSize: 12),
-        ),
-        SizedBox(width: 8),
-        Text(
-          value,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildChartTab() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
-      child: Column(
+    return Padding(
+      padding: EdgeInsets.only(bottom: AppDimensions.spacing4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildChartCard(
-            'Stock Levels',
-            _buildBarChart(),
-            Icons.bar_chart,
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
           ),
-          SizedBox(height: 16),
-          _buildChartCard(
-            'Category Distribution',
-            _buildPieChart(),
-            Icons.pie_chart,
-          ),
-          SizedBox(height: 16),
-          _buildChartCard(
-            'Stock Trends',
-            _buildLineChart(),
-            Icons.show_chart,
+          Flexible(
+            child: Text(
+              value,
+              style: AppTextStyles.body2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -187,29 +176,56 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
 
   Widget _buildChartCard(String title, Widget chart, IconData icon) {
     return Card(
-      elevation: 4,
+      elevation: AppDimensions.elevationSmall,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+      ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(AppDimensions.spacing16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(icon, color: Theme.of(context).primaryColor),
-                SizedBox(width: 8),
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                Icon(icon, color: AppColors.primary, size: AppDimensions.iconMedium),
+                SizedBox(width: AppDimensions.spacing8),
+                Text(title, style: AppTextStyles.subtitle1),
               ],
             ),
-            SizedBox(height: 16),
-            Container(
+            SizedBox(height: AppDimensions.spacing16),
+            SizedBox(
               height: 250,
               child: chart,
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildChartTab() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(AppDimensions.spacing16),
+      child: Column(
+        children: [
+          _buildChartCard(
+            'Stock Levels',
+            _buildBarChart(),
+            Icons.bar_chart,
+          ),
+          SizedBox(height: AppDimensions.spacing16),
+          _buildChartCard(
+            'Category Distribution',
+            _buildPieChart(),
+            Icons.pie_chart,
+          ),
+          SizedBox(height: AppDimensions.spacing16),
+          _buildChartCard(
+            'Stock Trends',
+            _buildLineChart(),
+            Icons.show_chart,
+          ),
+        ],
       ),
     );
   }
@@ -227,7 +243,7 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
                 toY: stockItems[index]['quantity'].toDouble(),
                 color: _getStatusColor(_getStockStatus(stockItems[index])),
                 width: 25,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(AppDimensions.radiusSmall)),
               ),
             ],
           );
@@ -238,10 +254,10 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
               showTitles: true,
               getTitlesWidget: (value, titleMeta) {
                 return Padding(
-                  padding: EdgeInsets.only(right: 8),
+                  padding: EdgeInsets.only(right: AppDimensions.spacing8),
                   child: Text(
                     value.toInt().toString(),
-                    style: TextStyle(fontSize: 12),
+                    style: AppTextStyles.caption,
                   ),
                 );
               },
@@ -252,10 +268,11 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
               showTitles: true,
               getTitlesWidget: (value, titleMeta) {
                 return Padding(
-                  padding: EdgeInsets.only(top: 8),
+                  padding: EdgeInsets.only(top: AppDimensions.spacing8),
                   child: Text(
                     stockItems[value.toInt()]['item'],
-                    style: TextStyle(fontSize: 12),
+                    style: AppTextStyles.caption,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 );
               },
@@ -278,11 +295,7 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
             title: '${entry.value['item']}\n${entry.value['quantity']}',
             color: color,
             radius: 100,
-            titleStyle: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            titleStyle: AppTextStyles.caption.copyWith(color: AppColors.textOnPrimary),
           );
         }).toList(),
         sectionsSpace: 2,
@@ -297,6 +310,12 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
           show: true,
           drawVerticalLine: false,
           horizontalInterval: 100,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: AppColors.divider,
+              strokeWidth: 1,
+            );
+          },
         ),
         titlesData: FlTitlesData(
           leftTitles: AxisTitles(
@@ -305,7 +324,7 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
               getTitlesWidget: (value, titleMeta) {
                 return Text(
                   value.toInt().toString(),
-                  style: TextStyle(fontSize: 12),
+                  style: AppTextStyles.caption,
                 );
               },
             ),
@@ -316,13 +335,16 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
               getTitlesWidget: (value, titleMeta) {
                 return Text(
                   'Week ${value.toInt() + 1}',
-                  style: TextStyle(fontSize: 12),
+                  style: AppTextStyles.caption,
                 );
               },
             ),
           ),
         ),
-        borderData: FlBorderData(show: true),
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: AppColors.border),
+        ),
         minX: 0,
         maxX: 4,
         minY: 0,
@@ -351,9 +373,11 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Medical Stock Management'),
+        title: Text('Medical Stock Management', style: AppTextStyles.headline2.copyWith(color: AppColors.textOnPrimary)),
+        backgroundColor: AppColors.primary,
         bottom: TabBar(
           controller: _tabController,
+          labelStyle: AppTextStyles.button,
           tabs: [
             Tab(icon: Icon(Icons.inventory), text: 'Inventory'),
             Tab(icon: Icon(Icons.analytics), text: 'Analytics'),
@@ -378,32 +402,38 @@ class _StockTrackingPageState extends State<StockTrackingPage> with SingleTicker
           // Inventory Tab
           _isGridView
               ? GridView.builder(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(AppDimensions.spacing16),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.8, // Adjusted to fit content
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.8,
+                    crossAxisSpacing: AppDimensions.spacing16,
+                    mainAxisSpacing: AppDimensions.spacing16,
                   ),
                   itemCount: stockItems.length,
                   itemBuilder: (context, index) => _buildStockCard(stockItems[index]),
                 )
               : ListView.builder(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(AppDimensions.spacing16),
                   itemCount: stockItems.length,
-                  itemBuilder: (context, index) => _buildStockCard(stockItems[index]),
+                  itemBuilder: (context, index) => Padding(
+                    padding: EdgeInsets.only(bottom: AppDimensions.spacing16),
+                    child: _buildStockCard(stockItems[index]),
+                  ),
                 ),
           // Analytics Tab
           _buildChartTab(),
           // Settings Tab
-          Center(child: Text('Settings Coming Soon')),
+          Center(
+            child: Text('Settings Coming Soon', style: AppTextStyles.body1),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Add new stock item functionality
         },
-        child: Icon(Icons.add),
+        backgroundColor: AppColors.primary,
+        child: Icon(Icons.add, color: AppColors.textOnPrimary),
         tooltip: 'Add New Item',
       ),
     );
