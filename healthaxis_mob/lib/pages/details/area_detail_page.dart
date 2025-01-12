@@ -1,4 +1,3 @@
-// File: lib/pages/area_detail/area_detail_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -6,21 +5,36 @@ import '../../core/constants/colors.dart';
 import '../../core/constants/text_styles.dart';
 import '../../core/constants/dimensions.dart';
 
-class AreaDetailPage extends StatefulWidget {
-  const AreaDetailPage({
-    super.key,
-    required this.areaName,
-    required this.latitude,
-    required this.longitude,
-    required this.diseaseSpread,
-    required this.diseaseSources,
+class HealthcareFacility {
+  final String name;
+  final String type;
+  final int bedCapacity;
+  final int availableBeds;
+  final LatLng location;
+  final String contact;
+
+  HealthcareFacility({
+    required this.name,
+    required this.type,
+    required this.bedCapacity,
+    required this.availableBeds,
+    required this.location,
+    required this.contact,
   });
 
-  final String areaName;
-  final double latitude;
-  final double longitude;
-  final String diseaseSpread;
-  final String diseaseSources;
+  factory HealthcareFacility.fromMap(Map<String, dynamic> map) {
+    return HealthcareFacility(
+      name: map['name'] as String,
+      type: map['type'] as String,
+      bedCapacity: map['bedCapacity'] as int,
+      availableBeds: map['availableBeds'] as int,
+      location: map['location'] as LatLng,
+      contact: map['contact'] as String,
+    );
+  }
+}
+class AreaDetailPage extends StatefulWidget {
+  const AreaDetailPage({super.key});
 
   @override
   State<AreaDetailPage> createState() => _AreaDetailPageState();
@@ -28,9 +42,14 @@ class AreaDetailPage extends StatefulWidget {
 
 class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  final MapController _mapController = MapController();
   bool _isDataSynced = true;
+  bool _isSyncing = false;
+  final String areaName = 'Downtown Area';
+  final double latitude = 28.7041;
+  final double longitude = 77.1025;
 
-  final diseaseData = [
+  final List<Map<String, dynamic>> diseaseData = [
     {
       'name': 'Dengue Fever',
       'activeCases': 45,
@@ -38,61 +57,46 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
       'trend': 'Increasing',
       'symptoms': ['High Fever', 'Severe Headache', 'Joint Pain'],
       'riskFactors': ['Standing Water', 'Poor Drainage'],
+      'color': AppColors.urgent,
     },
     {
-      'name': 'Typhoid',
-      'activeCases': 28,
+      'name': 'Malaria',
+      'activeCases': 32,
       'severity': 'Moderate',
       'trend': 'Stable',
-      'symptoms': ['Fever', 'Weakness', 'Stomach Pain'],
-      'riskFactors': ['Contaminated Water', 'Poor Sanitation'],
-    },
-    {
-      'name': 'Respiratory Infections',
-      'activeCases': 62,
-      'severity': 'Moderate',
-      'trend': 'Decreasing',
-      'symptoms': ['Cough', 'Shortness of Breath', 'Fever'],
-      'riskFactors': ['Air Pollution', 'Dense Population'],
+      'symptoms': ['Fever', 'Chills', 'Headache'],
+      'riskFactors': ['Mosquito Breeding', 'Poor Sanitation'],
+      'color': AppColors.monitoring,
     },
   ];
 
-  final patientData = [
-    {
-      'id': 'P001',
-      'name': 'John Doe',
-      'age': 45,
-      'condition': 'Dengue Fever',
-      'severity': 'Critical',
-      'address': '123 Main St',
-      'lastVisit': '2024-01-10',
-      'status': 'Under Treatment',
-    },
-  ];
 
-  final healthcareFacilities = [
-    {
-      'name': 'City General Hospital',
-      'type': 'Government Hospital',
-      'bedCapacity': 200,
-      'availableBeds': 45,
-      'location': LatLng(27.6640, 79.4205),
-      'specialties': ['Emergency Care', 'Infectious Diseases'],
-    },
-    {
-      'name': 'Community Health Center',
-      'type': 'Primary Healthcare',
-      'bedCapacity': 50,
-      'availableBeds': 15,
-      'location': LatLng(27.6630, 79.4190),
-      'specialties': ['General Medicine', 'Vaccination'],
-    },
-  ];
+  late final List<HealthcareFacility> facilities;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    
+    // Initialize facilities with proper typing
+    facilities = [
+      HealthcareFacility(
+        name: 'Primary Health Center',
+        type: 'Government',
+        bedCapacity: 50,
+        availableBeds: 15,
+        location: LatLng(28.7041, 77.1025),
+        contact: '+91 1234567890',
+      ),
+      HealthcareFacility(
+        name: 'Community Clinic',
+        type: 'Private',
+        bedCapacity: 20,
+        availableBeds: 8,
+        location: LatLng(28.7045, 77.1030),
+        contact: '+91 9876543210',
+      ),
+    ];
   }
 
   @override
@@ -104,30 +108,7 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.areaName),
-        backgroundColor: AppColors.primary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () => _showAlerts(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () => _showFilters(context),
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabs: const [
-            Tab(icon: Icon(Icons.dashboard), text: 'Overview'),
-            Tab(icon: Icon(Icons.medical_services), text: 'Diseases'),
-            Tab(icon: Icon(Icons.people), text: 'Patients'),
-            Tab(icon: Icon(Icons.local_hospital), text: 'Facilities'),
-          ],
-        ),
-      ),
+      appBar: _buildAppBar(),
       body: TabBarView(
         controller: _tabController,
         children: [
@@ -138,24 +119,42 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
         ],
       ),
       bottomNavigationBar: _buildSyncBar(),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      // floatingActionButton: _buildFloatingActionButtons(),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: AppColors.primary,
+      elevation: AppDimensions.elevationSmall,
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FloatingActionButton.extended(
-            onPressed: () => _showAddCaseDialog(),
-            label: const Text('Add Case'),
-            icon: const Icon(Icons.add_circle),
-            backgroundColor: AppColors.secondary,
-            heroTag: 'addCase',
+          Text(areaName, style: AppTextStyles.headline2.copyWith(color: AppColors.textOnPrimary)),
+          Text(
+            'Population: 5,234 | Area: 12.5 km²',
+            style: AppTextStyles.caption.copyWith(color: AppColors.textOnPrimary),
           ),
-          const SizedBox(height: 8),
-          FloatingActionButton.extended(
-            onPressed: () => _showEmergencyResponse(),
-            label: const Text('Emergency'),
-            icon: const Icon(Icons.emergency),
-            backgroundColor: AppColors.urgent,
-            heroTag: 'emergency',
-          ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications),
+          onPressed: () => _showAlerts(context),
+        ),
+        IconButton(
+          icon: const Icon(Icons.filter_list),
+          onPressed: () => _showFilters(context),
+        ),
+      ],
+      bottom: TabBar(
+        controller: _tabController,
+        indicatorColor: AppColors.secondary,
+        tabs: const [
+          Tab(icon: Icon(Icons.dashboard), text: 'Overview'),
+          Tab(icon: Icon(Icons.medical_services), text: 'Diseases'),
+          Tab(icon: Icon(Icons.people), text: 'Patients'),
+          Tab(icon: Icon(Icons.local_hospital), text: 'Facilities'),
         ],
       ),
     );
@@ -163,14 +162,14 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
 
   Widget _buildOverviewTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppDimensions.spacing16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildQuickStats(),
-          const SizedBox(height: 16),
+          SizedBox(height: AppDimensions.spacing16),
           _buildDiseaseMap(),
-          const SizedBox(height: 16),
+          SizedBox(height: AppDimensions.spacing16),
           _buildRecentAlerts(),
         ],
       ),
@@ -180,19 +179,18 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
   Widget _buildQuickStats() {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppDimensions.spacing16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Area Statistics',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
+            Text('Area Statistics', style: AppTextStyles.subtitle1),
+            SizedBox(height: AppDimensions.spacing16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem('Active Cases', '135', Icons.sick),
-                _buildStatItem('Critical', '12', Icons.warning),
-                _buildStatItem('Recovered', '45', Icons.healing),
+                _buildStatItem('Active Cases', '135', Icons.sick, AppColors.urgent),
+                _buildStatItem('Critical', '12', Icons.warning, AppColors.monitoring),
+                _buildStatItem('Recovered', '45', Icons.healing, AppColors.stable),
               ],
             ),
           ],
@@ -201,55 +199,34 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon) {
+  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
     return Column(
       children: [
-        Icon(icon, color: AppColors.primary, size: 32),
-        const SizedBox(height: 8),
-        Text(value,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        Text(label),
+        Icon(icon, color: color, size: AppDimensions.iconLarge),
+        SizedBox(height: AppDimensions.spacing8),
+        Text(value, style: AppTextStyles.headline2),
+        Text(label, style: AppTextStyles.body2),
       ],
     );
   }
 
   Widget _buildDiseaseMap() {
     return SizedBox(
-      height: 300,
+      height: 400,
       child: Card(
         child: FlutterMap(
+          mapController: _mapController,
           options: MapOptions(
-            initialCenter: LatLng(widget.latitude, widget.longitude),
-            initialZoom: 13.0,
+            initialCenter: LatLng(latitude, longitude),
+            initialZoom: 14.0,
           ),
           children: [
             TileLayer(
-              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: const ['a', 'b', 'c'],
             ),
             MarkerLayer(
-              markers: [
-                Marker(
-                  point: LatLng(widget.latitude, widget.longitude),
-                  width: 80,
-                  height: 80,
-                  child: Icon(
-                    Icons.location_on,
-                    color: AppColors.primary,
-                    size: 40,
-                  ),
-                ),
-                ...healthcareFacilities.map((facility) => Marker(
-                      point: facility['location'] as LatLng,
-                      width: 60,
-                      height: 60,
-                      child: Icon(
-                        Icons.local_hospital,
-                        color: AppColors.secondary,
-                        size: 30,
-                      ),
-                    )),
-              ],
+              markers: _buildMarkers(),
             ),
           ],
         ),
@@ -257,15 +234,30 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
     );
   }
 
+  List<Marker> _buildMarkers() {
+    return facilities.map((facility) {
+      return Marker(
+        point: facility.location as LatLng,
+        width: 40,
+        height: 40,
+        child: Icon(
+          Icons.local_hospital,
+          color: AppColors.secondary,
+          size: AppDimensions.iconLarge,
+        ),
+      );
+    }).toList();
+  }
+
   Widget _buildRecentAlerts() {
     return Card(
       child: ListTile(
-        title: const Text('Recent Alerts'),
+        title: Text('Recent Alerts', style: AppTextStyles.subtitle1),
         subtitle: const Text('3 new cases reported in the last 24 hours'),
-        leading: const Icon(Icons.notifications_active),
+        leading: Icon(Icons.notifications_active, color: AppColors.warning),
         trailing: TextButton(
           onPressed: () {},
-          child: const Text('View All'),
+          child: Text('View All', style: TextStyle(color: AppColors.primary)),
         ),
       ),
     );
@@ -273,24 +265,24 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
 
   Widget _buildDiseasesTab() {
     return ListView.builder(
+      padding: const EdgeInsets.all(AppDimensions.spacing16),
       itemCount: diseaseData.length,
       itemBuilder: (context, index) {
         final disease = diseaseData[index];
         return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ExpansionTile(
-            title: Text(disease['name'] as String),
+            title: Text(disease['name'], style: AppTextStyles.subtitle1),
             subtitle: Text('Active Cases: ${disease['activeCases']}'),
             children: [
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppDimensions.spacing16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Severity: ${disease['severity']}'),
-                    Text('Trend: ${disease['trend']}'),
-                    const SizedBox(height: 8),
-                    const Text('Symptoms:'),
+                    _buildDiseaseInfo('Severity', disease['severity']),
+                    _buildDiseaseInfo('Trend', disease['trend']),
+                    const SizedBox(height: AppDimensions.spacing8),
+                    Text('Symptoms:', style: AppTextStyles.body1),
                     ...(disease['symptoms'] as List).map((s) => Text('• $s')),
                   ],
                 ),
@@ -302,98 +294,216 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
     );
   }
 
+  Widget _buildDiseaseInfo(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimensions.spacing8),
+      child: Row(
+        children: [
+          Text('$label: ', style: AppTextStyles.body1),
+          Text(value, style: AppTextStyles.body2),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPatientsTab() {
-    return ListView.builder(
-      itemCount: patientData.length,
-      itemBuilder: (context, index) {
-        final patient = patientData[index];
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: ListTile(
-            title: Text('${patient['name']} (${patient['age']} yrs)'),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Condition: ${patient['condition']}'),
-                Text('Status: ${patient['status']}'),
-              ],
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.info),
-              onPressed: () => _showPatientDetails(patient),
-            ),
-          ),
-        );
-      },
+    return const Center(
+      child: Text('Patients information will be displayed here'),
     );
   }
 
   Widget _buildFacilitiesTab() {
     return ListView.builder(
-      itemCount: healthcareFacilities.length,
+      padding: const EdgeInsets.all(AppDimensions.spacing16),
+      itemCount: facilities.length,
       itemBuilder: (context, index) {
-        final facility = healthcareFacilities[index];
+        final facility = facilities[index];
         return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: ListTile(
-            title: Text(facility['name'] as String),
-            subtitle: Text(
-                '${facility['type']}\nBeds Available: ${facility['availableBeds']}/${facility['bedCapacity']}'),
-            leading: const Icon(Icons.local_hospital),
-            trailing: IconButton(
-              icon: const Icon(Icons.map),
-              onPressed: () {
-                // Implement navigation to facility on map
-              },
-            ),
+          elevation: AppDimensions.elevationSmall,
+          margin: const EdgeInsets.only(bottom: AppDimensions.spacing16),
+          child: Column(
+            children: [
+              ListTile(
+                title: Text(
+                  facility.name,
+                  style: AppTextStyles.subtitle1,
+                ),
+                subtitle: Text(
+                  facility.type,
+                  style: AppTextStyles.body2,
+                ),
+                leading: Container(
+                  padding: const EdgeInsets.all(AppDimensions.spacing8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                  ),
+                  child: Icon(
+                    Icons.local_hospital,
+                    color: AppColors.primary,
+                    size: AppDimensions.iconMedium,
+                  ),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.phone),
+                  color: AppColors.primary,
+                  onPressed: () {
+                    // Handle phone call
+                  },
+                ),
+              ),
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.all(AppDimensions.spacing16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildFacilityStat(
+                      'Total Beds',
+                      facility.bedCapacity.toString(),
+                      Icons.bed,
+                    ),
+                    _buildFacilityStat(
+                      'Available',
+                      facility.availableBeds.toString(),
+                      Icons.bedroom_child,
+                      color: facility.availableBeds > 0 
+                          ? AppColors.success 
+                          : AppColors.error,
+                    ),
+                    _buildFacilityStat(
+                      'Occupancy',
+                      '${((facility.bedCapacity - facility.availableBeds) / facility.bedCapacity * 100).round()}%',
+                      Icons.people,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
+  Widget _buildFacilityStat(String label, String value, IconData icon, {Color? color}) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          color: color ?? AppColors.primary,
+          size: AppDimensions.iconMedium,
+        ),
+        const SizedBox(height: AppDimensions.spacing4),
+        Text(
+          value,
+          style: AppTextStyles.subtitle1.copyWith(
+            color: color ?? AppColors.textPrimary,
+          ),
+        ),
+        Text(
+          label,
+          style: AppTextStyles.caption,
+        ),
+      ],
+    );
+  }
+
+
+  void _handleSync() {
+    setState(() {
+      _isSyncing = true;
+      _isDataSynced = false;
+    });
+
+    // Show syncing prompt for 3 seconds
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Row(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 16),
+              Text('Syncing data offline...', style: AppTextStyles.body1),
+            ],
+          ),
+        );
+      },
+    );
+
+    // After 3 seconds, hide prompt and update sync status
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.of(context).pop(); // Hide the prompt
+      setState(() {
+        _isSyncing = false;
+        _isDataSynced = true;
+      });
+    });
+  }
+
   Widget _buildSyncBar() {
     return Container(
-      padding: const EdgeInsets.all(8),
-      color: Colors.grey[200],
+      padding: const EdgeInsets.all(AppDimensions.spacing8),
+      color: AppColors.surfaceMedium,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             _isDataSynced ? Icons.cloud_done : Icons.cloud_off,
-            color: _isDataSynced ? Colors.green : Colors.orange,
+            color: _isDataSynced ? AppColors.success : AppColors.warning,
           ),
-          const SizedBox(width: 8),
-          Text(_isDataSynced ? 'Data Synced' : 'Offline Mode'),
-          const SizedBox(width: 16),
-          TextButton.icon(
-            onPressed: () => _syncData(),
-            icon: const Icon(Icons.sync),
-            label: const Text('Sync Now'),
+          SizedBox(width: AppDimensions.spacing8),
+          Text(
+            _isDataSynced ? 'Data Synced' : 'Offline Mode',
+            style: AppTextStyles.body2,
+          ),
+          SizedBox(width: AppDimensions.spacing16),
+          ElevatedButton(
+            onPressed: _isSyncing ? null : _handleSync,
+            child: Text(_isSyncing ? 'Syncing...' : 'Sync Data'),
           ),
         ],
       ),
     );
   }
 
-  void _syncData() {
-    setState(() {
-      _isDataSynced = !_isDataSynced;
-    });
+  Widget _buildFloatingActionButtons() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        FloatingActionButton.extended(
+          onPressed: () => _showAddCaseDialog(),
+          label: const Text('Add Case'),
+          icon: const Icon(Icons.add_circle),
+          backgroundColor: AppColors.secondary,
+          heroTag: 'addCase',
+        ),
+        SizedBox(height: AppDimensions.spacing8),
+        FloatingActionButton.extended(
+          onPressed: () => _showEmergencyResponse(),
+          label: const Text('Emergency'),
+          icon: const Icon(Icons.emergency),
+          backgroundColor: AppColors.urgent,
+          heroTag: 'emergency',
+        ),
+      ],
+    );
   }
 
   void _showAddCaseDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add New Case'),
+        title: Text('Add New Case', style: AppTextStyles.subtitle1),
         content: const Text('Case reporting form will be implemented here'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Save'),
           ),
@@ -406,35 +516,8 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Emergency Response'),
+        title: Text('Emergency Response', style: AppTextStyles.subtitle1),
         content: const Text('Emergency response actions will be implemented here'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showPatientDetails(Map<String, dynamic> patient) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(patient['name'] as String),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('ID: ${patient['id']}'),
-            Text('Age: ${patient['age']}'),
-            Text('Condition: ${patient['condition']}'),
-            Text('Status: ${patient['status']}'),
-            Text('Address: ${patient['address']}'),
-            Text('Last Visit: ${patient['lastVisit']}'),
-          ],
-        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -449,7 +532,7 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Area Alerts'),
+        title: Text('Area Alerts', style: AppTextStyles.subtitle1),
         content: const Text('Recent alerts will be shown here'),
         actions: [
           TextButton(
@@ -465,7 +548,7 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter Options'),
+        title: Text('Filter Options', style: AppTextStyles.subtitle1),
         content: const Text('Filter options will be implemented here'),
         actions: [
           TextButton(
