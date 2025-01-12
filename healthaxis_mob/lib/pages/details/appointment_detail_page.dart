@@ -4,27 +4,29 @@ import '../../core/constants/colors.dart';
 import '../../core/constants/text_styles.dart';
 import '../../core/constants/dimensions.dart';
 
-
 class AppointmentDetailsPage extends StatelessWidget {
-  final Map<String, dynamic>? appointment;
+  // Demo data - hardcoded appointment details
+  final Map<String, dynamic> appointment = {
+    'name': 'Anjali Mehta',
+    'patientId': 'P-2024-0123',
+    'status': 'Stable',
+    'imagePath': 'assets/patients/anjali_mehta.jpg',  // Make sure to have a default avatar image
+    'time': '2025-01-15 14:30:00',
+    'department': 'Cardiology',
+    'type': 'Follow-up Consultation',
+    'medications': [
+      'Lisinopril 10mg',
+      'Metoprolol 25mg',
+      'Aspirin 81mg'
+    ],
+    'lastVisit': 'December 5, 2024',
+    'notes': 'Patient reports improved exercise tolerance. Blood pressure has stabilized with current medication regimen. Continue monitoring cardiac function and medication adherence.',
+  };
 
-  const AppointmentDetailsPage({Key? key, this.appointment}) : super(key: key);
+  AppointmentDetailsPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // If appointment is null, show error state
-    if (appointment == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Error'),
-          backgroundColor: AppColors.primary,
-        ),
-        body: Center(
-          child: Text('Appointment details not found', style: AppTextStyles.body1),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -47,6 +49,7 @@ class AppointmentDetailsPage extends StatelessWidget {
     );
   }
 
+  // Rest of the code remains the same, just remove the null checks since we now have hardcoded data
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       expandedHeight: 120,
@@ -67,6 +70,7 @@ class AppointmentDetailsPage extends StatelessWidget {
           style: AppTextStyles.headline2.copyWith(
             color: AppColors.textOnPrimary,
           ),
+          textAlign: TextAlign.center,
         ),
       ),
       leading: IconButton(
@@ -111,10 +115,8 @@ class AppointmentDetailsPage extends StatelessWidget {
                     ),
                     child: CircleAvatar(
                       radius: 40,
-                      backgroundImage: appointment!['imagePath'] != null 
-                          ? AssetImage(appointment!['imagePath'] as String)
-                          : null,
-                      child: appointment!['imagePath'] == null 
+                      backgroundImage: AssetImage(appointment['imagePath']),
+                      child: appointment['imagePath'] == null 
                           ? Icon(Icons.person, size: 40)
                           : null,
                     ),
@@ -125,12 +127,12 @@ class AppointmentDetailsPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          appointment!['name']?.toString() ?? 'Unknown Patient',
+                          appointment['name'],
                           style: AppTextStyles.headline2,
                         ),
                         SizedBox(height: AppDimensions.spacing4),
                         Text(
-                          'Patient ID: ${appointment!['patientId']?.toString() ?? 'Unknown ID'}',
+                          'Patient ID: ${appointment['patientId']}',
                           style: AppTextStyles.body2,
                         ),
                         SizedBox(height: AppDimensions.spacing8),
@@ -140,13 +142,13 @@ class AppointmentDetailsPage extends StatelessWidget {
                             vertical: AppDimensions.spacing4,
                           ),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(appointment!['status']?.toString() ?? '').withOpacity(0.1),
+                            color: _getStatusColor(appointment['status']).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
                           ),
                           child: Text(
-                            appointment!['status']?.toString() ?? 'Unknown Status',
+                            appointment['status'],
                             style: AppTextStyles.caption.copyWith(
-                              color: _getStatusColor(appointment!['status']?.toString() ?? ''),
+                              color: _getStatusColor(appointment['status']),
                             ),
                           ),
                         ),
@@ -163,14 +165,7 @@ class AppointmentDetailsPage extends StatelessWidget {
   }
 
   Widget _buildAppointmentDetails() {
-    DateTime? appointmentTime;
-    try {
-      appointmentTime = appointment!['time'] != null 
-          ? DateTime.parse(appointment!['time'].toString())
-          : null;
-    } catch (e) {
-      appointmentTime = null;
-    }
+    DateTime appointmentTime = DateTime.parse(appointment['time']);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: AppDimensions.spacing16),
@@ -183,26 +178,22 @@ class AppointmentDetailsPage extends StatelessWidget {
             _buildDetailItem(
               Icons.calendar_today_outlined,
               'Date',
-              appointmentTime != null 
-                  ? DateFormat('EEEE, MMMM d, yyyy').format(appointmentTime)
-                  : 'Date not specified',
+              DateFormat('EEEE, MMMM d, yyyy').format(appointmentTime),
             ),
             _buildDetailItem(
               Icons.access_time,
               'Time',
-              appointmentTime != null 
-                  ? DateFormat('h:mm a').format(appointmentTime)
-                  : 'Time not specified',
+              DateFormat('h:mm a').format(appointmentTime),
             ),
             _buildDetailItem(
               Icons.local_hospital_outlined,
               'Department',
-              appointment!['department']?.toString() ?? 'Department not specified',
+              appointment['department'],
             ),
             _buildDetailItem(
               Icons.medical_services_outlined,
               'Type',
-              appointment!['type']?.toString() ?? 'Type not specified',
+              appointment['type'],
             ),
           ]),
         ],
@@ -211,12 +202,7 @@ class AppointmentDetailsPage extends StatelessWidget {
   }
 
   Widget _buildMedicalHistory() {
-    List<String> medications = [];
-    if (appointment!['medications'] != null) {
-      if (appointment!['medications'] is List) {
-        medications = List<String>.from(appointment!['medications']);
-      }
-    }
+    List<String> medications = List<String>.from(appointment['medications']);
 
     return Container(
       margin: EdgeInsets.all(AppDimensions.spacing16),
@@ -229,17 +215,17 @@ class AppointmentDetailsPage extends StatelessWidget {
             _buildDetailItem(
               Icons.medication_outlined,
               'Current Medications',
-              medications.isNotEmpty ? medications.join(', ') : 'No medications listed',
+              medications.join(', '),
             ),
             _buildDetailItem(
               Icons.history,
               'Previous Visit',
-              appointment!['lastVisit']?.toString() ?? 'No previous visits',
+              appointment['lastVisit'],
             ),
             _buildDetailItem(
               Icons.note_outlined,
               'Notes',
-              appointment!['notes']?.toString() ?? 'No notes available',
+              appointment['notes'],
             ),
           ]),
         ],
@@ -298,41 +284,39 @@ class AppointmentDetailsPage extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(AppDimensions.spacing16),
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              icon: Icon(Icons.video_call_outlined),
-              label: Text('Start Call'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: EdgeInsets.symmetric(vertical: AppDimensions.spacing12),
+      return Container(
+        margin: EdgeInsets.all(AppDimensions.spacing16),
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: Icon(
+                  Icons.medical_information,
+                  color: Colors.white, // Make icon white
+                ),
+                label: Text(
+                  'Start Diagnosis',
+                  style: TextStyle(
+                    color: Colors.white, // Make text white
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: EdgeInsets.symmetric(vertical: AppDimensions.spacing12),
+                  foregroundColor: Colors.white, // This will affect both icon and text
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/diagnosis'); // Add navigation route
+                },
               ),
-              onPressed: () {
-                // Implement video call
-              },
             ),
-          ),
-          SizedBox(width: AppDimensions.spacing16),
-          Expanded(
-            child: ElevatedButton.icon(
-              icon: Icon(Icons.message_outlined),
-              label: Text('Message'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondary,
-                padding: EdgeInsets.symmetric(vertical: AppDimensions.spacing12),
-              ),
-              onPressed: () {
-                // Implement messaging
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+            SizedBox(width: AppDimensions.spacing16),
+          ],
+        ),
+      );
+    }
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {

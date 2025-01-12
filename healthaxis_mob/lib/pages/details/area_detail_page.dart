@@ -45,7 +45,7 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
   final MapController _mapController = MapController();
   bool _isDataSynced = true;
   bool _isSyncing = false;
-  final String areaName = 'Downtown Area';
+  final String areaName = 'Sindoda';
   final double latitude = 28.7041;
   final double longitude = 77.1025;
 
@@ -209,24 +209,109 @@ class _AreaDetailPageState extends State<AreaDetailPage> with SingleTickerProvid
       ],
     );
   }
-
+  // Widget _buildLocationTab() {
+  //   return FlutterMap(
+  //     options: MapOptions(
+  //       initialCenter: patientData['location'],
+  //       initialZoom: 13.0,
+  //     ),
+  //     children: [
+  //       TileLayer(
+  //         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  //         subdomains: ['a', 'b', 'c'],
+  //       ),
+  //       MarkerLayer(
+  //         markers: [
+  //           Marker(
+  //             point: patientData['location'],
+  //             child: Icon(
+  //               Icons.location_on,
+  //               color: Colors.red,
+  //               size: 40.0,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
   Widget _buildDiseaseMap() {
     return SizedBox(
       height: 400,
       child: Card(
-        child: FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            initialCenter: LatLng(latitude, longitude),
-            initialZoom: 14.0,
-          ),
+        elevation: 4,
+        child: Column(
           children: [
-            TileLayer(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: const ['a', 'b', 'c'],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.map, color: Colors.blue),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Disease Distribution Map',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.my_location),
+                    onPressed: () {
+                      _mapController.move(
+                        LatLng(28.7041, 77.1025),
+                        14.0,
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-            MarkerLayer(
-              markers: _buildMarkers(),
+            Expanded(
+              child: FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: LatLng(37.7749, -122.4194),
+                  initialZoom: 10.0,
+                  interactionOptions: const InteractionOptions(
+                    // enableScrollWheel: true,
+                    enableMultiFingerGestureRace: true,
+                  ),
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.example.app',
+                  ),
+                  MarkerLayer(
+                    markers: _buildMarkers(),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.local_hospital, color: Colors.red, size: 16),
+                        SizedBox(width: 4),
+                        Text('Healthcare Facility'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

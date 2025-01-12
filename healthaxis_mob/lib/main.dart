@@ -31,7 +31,8 @@ class HealthAxisAIApp extends StatelessWidget {
         '/stock': (context) => StockTrackingPage(),
         '/patient-details': (context) => PatientDetailPage(),
         '/area-details': (context) => AreaDetailPage(),
-        '/appointment-details': (context) => AppointmentDetailsPage(appointment: AppData.patients[0])
+        '/appointment-details': (context) => AppointmentDetailsPage(),
+        // '/diagnosis'
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(builder: (context) => HomePage());
