@@ -9,6 +9,7 @@ import '../pages/details/chatbot_detail_page.dart';
 import '../pages/details/stock_tracking_page.dart';
 import '../pages/details/appointment_detail_page.dart';
 import '../../models/app_data.dart';
+import '../pages/diagnose/diagnosis.dart';
 
 void main() {
   runApp(HealthAxisAIApp());
@@ -32,7 +33,7 @@ class HealthAxisAIApp extends StatelessWidget {
         '/patient-details': (context) => PatientDetailPage(),
         '/area-details': (context) => AreaDetailPage(),
         '/appointment-details': (context) => AppointmentDetailsPage(),
-        // '/diagnosis'
+        '/diagnosis': (context) => DiagnosisPage()
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(builder: (context) => HomePage());
