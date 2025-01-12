@@ -515,7 +515,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               style: AppTextStyles.body2.copyWith(color: AppColors.textOnPrimary),
             ),
             Text(
-              'Dr. Smith',
+              'Dr. N.K Gupta',
               style: AppTextStyles.headline2.copyWith(color: AppColors.textOnPrimary),
             ),
           ],

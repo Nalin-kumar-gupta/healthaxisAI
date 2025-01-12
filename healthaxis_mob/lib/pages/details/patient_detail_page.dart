@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../core/constants/colors.dart';
-import '../../core/constants/text_styles.dart';
+
+
+
+
+// Add at the top of the HomePage file, with other imports
+import 'package:intl/intl.dart';
 
 class PatientDetailPage extends StatefulWidget {
   @override
@@ -13,27 +18,44 @@ class _PatientDetailPageState extends State<PatientDetailPage> with SingleTicker
   late TabController _tabController;
   
   final Map<String, dynamic> patientData = {
-    'name': 'John Doe',
-    'age': 45,
-    'gender': 'Male',
+    'name': 'Anjali Mehta',
+    'age': 32,
+    'gender': 'Female',
     'conditions': ['Hypertension', 'Diabetes'],
     'lastVisit': '2023-12-10',
     'hospital': 'City General Hospital',
     'location': LatLng(37.7749, -122.4194),
-    'allergies': ['Penicillin'],
-    'medicationReminders': ['Metformin: 8 AM', 'Insulin: 6 PM'],
+    'allergies': ['Penicillin', 'Aspirin'],
+    'medicationReminders': [
+      'Metformin: 8 AM - Take with breakfast',
+      'Insulin: 6 PM - Inject before dinner'
+    ],
+    'emergencyContact': {
+      'name': 'Raj Mehta',
+      'relation': 'Husband',
+      'contact': '+9876543210'
+    },
+    'insuranceDetails': {
+      'provider': 'HealthCare Plus',
+      'policyNumber': 'HCP123456789',
+      'expiryDate': '2025-12-31'
+    },
     'longitudinalData': [
-      {'date': '2023-09-15', 'visitReason': 'Routine Checkup', 'doctor': 'Dr. Smith'},
-      {'date': '2023-10-20', 'visitReason': 'Blood Pressure Monitoring', 'doctor': 'Dr. Taylor'},
-      {'date': '2023-12-10', 'visitReason': 'Follow-up on Diabetes', 'doctor': 'Dr. Brown'},
+      {'date': '2023-09-15', 'visitReason': 'Routine Checkup', 'doctor': 'Dr. Asha Patel', 'notes': 'Routine health check, blood pressure monitored.'},
+      {'date': '2023-10-20', 'visitReason': 'Blood Pressure Monitoring', 'doctor': 'Dr. Ravi Kumar', 'notes': 'Blood pressure elevated, increased dosage of Amlodipine.'},
+      {'date': '2023-12-10', 'visitReason': 'Follow-up on Diabetes', 'doctor': 'Dr. Vijay Desai', 'notes': 'Diabetes well-controlled, insulin dosage adjusted.'},
     ],
     'previousPrescriptions': [
-      {'date': '2023-09-15', 'medication': 'Metformin', 'notes': 'Control blood sugar levels'},
-      {'date': '2023-10-20', 'medication': 'Amlodipine', 'notes': 'Manage hypertension'},
-      {'date': '2023-12-10', 'medication': 'Insulin', 'notes': 'Regulate blood sugar during follow-up'},
+      {'date': '2023-09-15', 'medication': 'Metformin', 'dosage': '500 mg', 'notes': 'Control blood sugar levels, take with food.'},
+      {'date': '2023-10-20', 'medication': 'Amlodipine', 'dosage': '5 mg', 'notes': 'Manage hypertension, take once daily.'},
+      {'date': '2023-12-10', 'medication': 'Insulin', 'dosage': '10 units', 'notes': 'Regulate blood sugar during follow-up, inject before dinner.'},
     ],
     'contact': '+1234567890',
+    'preferredLanguage': 'Hindi',
+    'occupation': 'Teacher',
+    'emergencyInstructions': 'In case of an emergency, contact the nearest hospital or call 911.',
   };
+
 
   @override
   void initState() {
@@ -66,7 +88,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> with SingleTicker
                   children: [
                     CircleAvatar(
                       radius: 40,
-                      backgroundImage: AssetImage('assets/patient.jpg'),
+                      backgroundImage: AssetImage('assets/patients/anjali_mehta.jpg'),
                     ),
                     SizedBox(width: 16),
                     Expanded(
@@ -150,7 +172,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> with SingleTicker
             condition,
             style: TextStyle(color: Colors.white, fontSize: 12),
           ),
-          backgroundColor: Colors.white24,
+          backgroundColor: const Color.fromARGB(211, 233, 67, 76),
         );
       }).toList(),
     );
@@ -363,35 +385,144 @@ class _PatientDetailPageState extends State<PatientDetailPage> with SingleTicker
   }
 
   Widget _buildBottomActionBar() {
+    String _formatDateTime(DateTime dateTime) {
+      // Custom datetime formatting without intl package
+      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      final hour = dateTime.hour > 12 ? dateTime.hour - 12 : dateTime.hour;
+      final amPm = dateTime.hour >= 12 ? 'PM' : 'AM';
+      final minute = dateTime.minute.toString().padLeft(2, '0');
+      
+      return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year} - $hour:$minute $amPm';
+    }
+
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // Handle call patient
+                  // Use simple dialog to show phone number instead of url_launcher
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Contact Patient'),
+                        content: Text('Call: ${patientData['contact']}'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              // Here you would implement your app's calling functionality
+                            },
+                            child: const Text('Call'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
-                icon: Icon(Icons.phone),
-                label: Text('Call Patient'),
+                icon: const Icon(Icons.phone, color: Colors.white),
+                label: const Text('Call Patient', style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () {
-                  // Handle schedule follow-up
+                onPressed: () async {
+                  // Show date picker
+                  final DateTime? date = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: ColorScheme.light(
+                            primary: AppColors.primary,
+                            onPrimary: Colors.white,
+                            surface: Colors.white,
+                            onSurface: Colors.black,
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
+                  );
+
+                  if (date != null) {
+                    // Show time picker
+                    final TimeOfDay? time = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+
+                    if (time != null) {
+                      // Combine date and time
+                      final DateTime scheduledDateTime = DateTime(
+                        date.year,
+                        date.month,
+                        date.day,
+                        time.hour,
+                        time.minute,
+                      );
+
+                      // Show confirmation dialog
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Confirm Follow-up'),
+                            content: Text(
+                              'Schedule follow-up for:\n${_formatDateTime(scheduledDateTime)}',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  // Save the appointment
+                                  // You would typically call a function here to save to your backend
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Follow-up scheduled successfully'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                },
+                                child: const Text('Confirm'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  }
                 },
-                icon: Icon(Icons.calendar_today),
-                label: Text('Schedule Follow-up'),
+                icon: const Icon(Icons.calendar_today, color: Colors.white),
+                label: const Text('Schedule Follow-up', style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
             ),

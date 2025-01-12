@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 class AppData {
   static final List<Map<String, dynamic>> appointments = [
     {
-      'name': 'Sarah Johnson',
-      'imagePath': 'assets/patients/patient1.jpg',
+      'name': 'Anjali Mehta',
+      'imagePath': 'assets/patients/anjali_mehta.jpg',
       'details': 'Annual Checkup',
       'time': '2024-01-05 09:30:00',
       'status': 'Confirmed',
@@ -14,8 +14,8 @@ class AppData {
       'contact': '+1 (555) 123-4567'
     },
     {
-      'name': 'Robert Chen',
-      'imagePath': 'assets/patients/patient2.jpg',
+      'name': 'Karan Patel',
+      'imagePath': 'assets/patients/karan_patel.jpg',
       'details': 'Diabetes Follow-up',
       'time': '2024-01-05 10:45:00',
       'status': 'In Progress',
@@ -24,8 +24,8 @@ class AppData {
       'contact': '+1 (555) 234-5678'
     },
     {
-      'name': 'Maria Garcia',
-      'imagePath': 'assets/patients/patient3.jpg',
+      'name': 'Pooja Gupta',
+      'imagePath': 'assets/patients/pooja_gupta.jpg',
       'details': 'Prenatal Checkup',
       'time': '2024-01-05 14:15:00',
       'status': 'Scheduled',
@@ -34,8 +34,8 @@ class AppData {
       'contact': '+1 (555) 345-6789'
     },
     {
-      'name': 'James Wilson',
-      'imagePath': 'assets/patients/patient4.jpg',
+      'name': 'Neelam Rani',
+      'imagePath': 'assets/patients/neelam_rani.jpg',
       'details': 'Blood Pressure Review',
       'time': '2024-01-05 15:30:00',
       'status': 'Confirmed',
@@ -47,8 +47,8 @@ class AppData {
 
   static final List<Map<String, dynamic>> patients = [
     {
-      'name': 'Sarah Johnson',
-      'imagePath': 'assets/patients/patient1.jpg',
+      'name': 'Anjali Mehta',
+      'imagePath': 'assets/patients/anjali_mehta.jpg',
       'status': 'Stable',
       'details': 'Hypertension',
       'nextAppointment': '2024-01-20',
@@ -60,8 +60,8 @@ class AppData {
       'medications': ['Lisinopril 10mg', 'Zyrtec 5mg']
     },
     {
-      'name': 'Robert Chen',
-      'imagePath': 'assets/patients/patient2.jpg',
+      'name': 'Karan Patel',
+      'imagePath': 'assets/patients/karan_patel.jpg',
       'status': 'Monitoring',
       'details': 'Type 2 Diabetes',
       'nextAppointment': '2024-01-15',
@@ -73,8 +73,8 @@ class AppData {
       'medications': ['Metformin 1000mg', 'Statin 20mg']
     },
     {
-      'name': 'Maria Garcia',
-      'imagePath': 'assets/patients/patient3.jpg',
+      'name': 'Pooja Gupta',
+      'imagePath': 'assets/patients/pooja_gupta.jpg',
       'status': 'Stable',
       'details': 'Pregnancy - 28 weeks',
       'nextAppointment': '2024-01-12',
