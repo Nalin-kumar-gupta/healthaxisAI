@@ -54,10 +54,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildQuickActions() {
     final actions = [
-      {'icon': Icons.chat_bubble_outline, 'label': 'Chatbot', 'route': '/chatbot', 'color': Color(0xFF4CAF50)},
-      {'icon': Icons.medical_services_outlined, 'label': 'Stock', 'route': '/stock', 'color': Color(0xFF2196F3)},
-      {'icon': Icons.calendar_today_outlined, 'label': 'Calendar', 'route': '/calendar', 'color': Color(0xFFFF4081)},
-      {'icon': Icons.help_outline, 'label': 'Help', 'route': '/help', 'color': Color(0xFF9C27B0)},
+      {
+        'icon': Icons.chat_bubble_outline,
+        'label': 'Chatbot',
+        'route': '/chatbot',
+        'color': Color(0xFF4CAF50),
+      },
+      {
+        'icon': Icons.medical_services_outlined,
+        'label': 'Stock',
+        'route': '/stock',
+        'color': Color(0xFF2196F3),
+      },
+      {
+        'icon': Icons.calendar_today_outlined,
+        'label': 'Calendar',
+        'onTap': () => _showCalendarView(), // Ensure _showCalendarView is accessible
+        'color': Color(0xFFFF4081),
+      },
+      {
+        'icon': Icons.help_outline,
+        'label': 'Help',
+        'onTap': () => _showHelp(context),
+        'color': Color(0xFF9C27B0),
+      },
     ];
 
     return Container(
@@ -75,49 +95,60 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: actions.map((action) => Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing4),
-                  child: InkWell(
-                    onTap: () => Navigator.pushNamed(context, action['route'] as String),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(AppDimensions.spacing12),
-                          decoration: BoxDecoration(
-                            color: action['color'] as Color,
-                            borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-                            boxShadow: [
-                              BoxShadow(
-                                color: (action['color'] as Color).withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
+              children: actions.map((action) {
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacing4),
+                    child: InkWell(
+                      onTap: () {
+                        if (action.containsKey('onTap') && action['onTap'] is Function) {
+                          // Execute the onTap function if it exists
+                          (action['onTap'] as Function)();
+                        } else if (action.containsKey('route') && action['route'] is String) {
+                          // Navigate to the route if it exists
+                          Navigator.pushNamed(context, action['route'] as String);
+                        }
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(AppDimensions.spacing12),
+                            decoration: BoxDecoration(
+                              color: action['color'] as Color,
+                              borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (action['color'] as Color).withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              action['icon'] as IconData,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                           ),
-                          child: Icon(
-                            action['icon'] as IconData,
-                            color: Colors.white,
-                            size: 28,
+                          SizedBox(height: AppDimensions.spacing8),
+                          Text(
+                            action['label'] as String,
+                            style: AppTextStyles.caption,
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        SizedBox(height: AppDimensions.spacing8),
-                        Text(
-                          action['label'] as String,
-                          style: AppTextStyles.caption,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              )).toList(),
+                );
+              }).toList(),
             ),
           ),
         ],
       ),
     );
   }
+
 
   Widget _buildAppointmentCard(Map<String, dynamic> appointment) {
     return InkWell(
@@ -1055,8 +1086,202 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     // Implementation
   }
 
-  void _showHelp() {
-    // Implementation
+  void _showHelp(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.85,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (_, controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  // Handle bar
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    height: 4,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      controller: controller,
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        const Text(
+                          'Emergency Assistance',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        
+                        // Emergency Call Button
+                        _buildEmergencyButton(
+                          icon: Icons.emergency,
+                          title: 'Call Emergency Services',
+                          subtitle: 'Immediate medical assistance (911)',
+                          color: Colors.red,
+                          onTap: () => _showEmergencyCallDialog(context),
+                        ),
+                        
+                        // First Aid Information
+                        _buildHelpSection(
+                          icon: Icons.medical_services,
+                          title: 'First Aid Guide',
+                          subtitle: 'Quick steps for common emergencies',
+                          onTap: () => _showFirstAidGuide(context),
+                        ),
+                        
+                        // Support Chat
+                        _buildHelpSection(
+                          icon: Icons.chat_bubble,
+                          title: 'Contact Support',
+                          subtitle: 'Chat with our medical team',
+                          onTap: () => _showSupportChat(context),
+                        ),
+                        
+                        // Nearby Hospitals
+                        _buildHelpSection(
+                          icon: Icons.local_hospital,
+                          title: 'Nearby Hospitals',
+                          subtitle: 'Find medical facilities near you',
+                          onTap: () => _showNearbyHospitals(context),
+                        ),
+                        
+                        // Emergency Contacts
+                        _buildHelpSection(
+                          icon: Icons.contacts,
+                          title: 'Emergency Contacts',
+                          subtitle: 'Manage your emergency contacts',
+                          onTap: () => _showEmergencyContacts(context),
+                        ),
+                        
+                        // Guided Help
+                        _buildHelpSection(
+                          icon: Icons.help,
+                          title: 'Guided Assistance',
+                          subtitle: 'Step-by-step help for your situation',
+                          onTap: () => _showGuidedHelp(context),
+                        ),
+                        
+                        // Panic Button
+                        _buildEmergencyButton(
+                          icon: Icons.warning,
+                          title: 'Panic Button',
+                          subtitle: 'Send SOS with your location',
+                          color: Colors.orange,
+                          onTap: () => _activatePanicButton(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildHelpSection({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: Icon(icon, size: 28),
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildEmergencyButton({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      color: color.withOpacity(0.1),
+      child: ListTile(
+        leading: Icon(icon, size: 28, color: color),
+        title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  // Helper functions for each section
+  void _showEmergencyCallDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Call Emergency Services?'),
+        content: const Text('This will dial 911. Do you want to proceed?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Implement emergency call
+              // You can use url_launcher package to make phone calls
+              Navigator.pop(context);
+            },
+            child: const Text('Call', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFirstAidGuide(BuildContext context) {
+    // Implement first aid guide display
+  }
+
+  void _showSupportChat(BuildContext context) {
+    // Implement support chat interface
+  }
+
+  void _showNearbyHospitals(BuildContext context) {
+    // Implement nearby hospitals map/list
+  }
+
+  void _showEmergencyContacts(BuildContext context) {
+    // Implement emergency contacts list/management
+  }
+
+  void _showGuidedHelp(BuildContext context) {
+    // Implement guided help flow
+  }
+
+  void _activatePanicButton(BuildContext context) {
+    // Implement panic button functionality
   }
 
   void _showAllAppointments() {
