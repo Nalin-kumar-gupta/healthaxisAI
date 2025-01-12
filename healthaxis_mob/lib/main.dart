@@ -28,7 +28,7 @@ class HealthAxisAIApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '' : (context) => HomePage(),
-        '/chatbot': (context) => ChatbotDetailPage(),
+        '/chatbot': (context) => MedicalChatbotPage(),
         '/stock': (context) => StockTrackingPage(),
         '/patient-details': (context) => PatientDetailPage(),
         '/area-details': (context) => AreaDetailPage(),
